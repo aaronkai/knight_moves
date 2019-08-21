@@ -28,6 +28,16 @@ class Board
     end
   end
   
+  def advance_round
+    self.grid.each do |row|
+       row.each do |square|
+         unless square.nil? 
+           puts square
+         end
+       end
+    end
+  end
+  
 end
 
 class Knight
@@ -68,9 +78,9 @@ class Path
     
   def update(path_array)
     if path_array[1].kind_of?(Array)
-      @path = path_array << path 
+      @path = path_array << path  
     else
-      self.path = [path_array, path]
+      @path = [path_array, path ] 
     end
   end
   
@@ -80,38 +90,53 @@ class Path
   
 end
 
-board = Board.new
-knight = Knight.new([0,0])
-board.mark_board(knight)
 
-def board_of_forking_paths(board)
-  next_rounds_board = Board.new
-  board.grid.each do |row|
-    row.each do |square|
-      unless square.nil?
-        square.each do |knight|
-          knight.possible_moves.each do |coords|
-            branching_knight = Knight.new([coords[0], coords[1]])
-            next_rounds_board.mark_board(branching_knight)
-            branching_knight.path.update(knight.path.path)
-         
-          end
-        end
-      end
-    end
-  end
-  return next_rounds_board
-end
-
-puts "ROUND 1"
-board = board_of_forking_paths(board)
-board.to_s
-
-puts "ROUND 2"
-board = board_of_forking_paths(board)
+# ###This works
+# board = Board.new
+# knight = Knight.new([0,0])
+# board.mark_board(knight)
+# knight.path.update([3,3])
+# puts knight
+# knight.path.update([4,4])
+# puts knight
+# knight2 = Knight.new([5,5])
+# knight2.path.update(knight.path.path)
+# puts knight2
 
 
-board.to_s
+###Lets start over
+new_knight = Knight.new([4,4])
+new_board = Board.new
+new_board.mark_board(new_knight)
+new_board.advance_round
+
+
+
+# def board_of_forking_paths(board)
+#   next_rounds_board = Board.new
+#   board.grid.each do |row|
+#     row.each do |square|
+#       unless square.nil?
+#         square.each do |a_knight|
+#           a_knight.possible_moves.each do |coords|
+#             branching_knight = Knight.new([coords[0], coords[1]])
+#             next_rounds_board.mark_board(branching_knight)
+#             branching_knight.path.update(a_knight.path.path)        
+#           end
+#         end
+#       end
+#     end
+#   end
+#   return next_rounds_board
+# end
+
+# puts "ROUND 1"
+# board = board_of_forking_paths(board)
+# board.to_s
+
+# puts "ROUND 2"
+# board = board_of_forking_paths(board)
+# board.to_s
 
 
 
