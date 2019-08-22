@@ -6,7 +6,7 @@ class Board
   end
   
   def mark_board(piece)
-    if (piece.x_coord >= 0 && piece.y_coord < 8) && (piece.y_coord >= 0 && piece.y_coord < 8)
+    if (piece.x_coord >= 0 && piece.x_coord < 8) && (piece.y_coord >= 0 && piece.y_coord < 8)
       if grid[piece.x_coord][piece.y_coord].nil?
         grid[piece.x_coord][piece.y_coord] = [piece] 
       else 
@@ -28,14 +28,31 @@ class Board
     end
   end
   
-  def advance_round
+  def gather_pieces_for_next_round
+    object_array = []
     self.grid.each do |row|
        row.each do |square|
          unless square.nil? 
-           puts square
+           square.each do |knight|
+            knight.possible_moves.each do |coords|
+              new_path = []
+              new_piece = Knight.new(coords)
+              new_path << new_piece.path
+              if knight.path[0].kind_of?(Array)
+                knight.path.each do |path|
+                  new_path = new_path << path
+                end
+              else
+                new_path = new_path << knight.path
+              end
+              new_piece.path = new_path
+              object_array.push(new_piece)
+            end
+          end
          end
        end
     end
+    return object_array
   end
   
 end
@@ -46,7 +63,7 @@ class Knight
   def initialize(coords=[0,0])
     @x_coord = coords[0]
     @y_coord = coords[1]
-    @path = Path.new([@x_coord, @y_coord])
+    @path = [@x_coord, y_coord]
   end
   
   def possible_moves
@@ -64,32 +81,30 @@ class Knight
       
   def to_s
     puts "Location: #{x_coord}, #{y_coord} "
-    puts "Path: #{path.path.inspect}"
+    puts "Path: #{path.inspect}"
   end
   
 end
 
-class Path
-  attr_accessor :path
-  
-  def initialize(coords)
-    @path = [coords[0],coords[1]]
-  end
-    
-  def update(path_array)
-    if path_array[1].kind_of?(Array)
-      @path = path_array << path  
-    else
-      @path = [path_array, path ] 
-    end
-  end
-  
-  def to_s
-    puts @path.inspect  
-  end
-  
-end
+###Lets start over
+new_knight = Knight.new([4,4])
+new_board = Board.new
+new_board.mark_board(new_knight)
+new_pieces = new_board.gather_pieces_for_next_round
 
+new_board2 = Board.new
+new_pieces.each do |piece|
+  new_board2.mark_board(piece)
+end
+p new_board2
+
+new_pieces = new_board2.gather_pieces_for_next_round
+new_board3 = Board.new
+new_pieces.each_with_index do |piece, index|
+  new_board3.mark_board(piece)
+  #puts "#{index}: #{piece}"
+end
+p new_board3
 
 # ###This works
 # board = Board.new
@@ -103,43 +118,24 @@ end
 # knight2.path.update(knight.path.path)
 # puts knight2
 
-
-###Lets start over
-new_knight = Knight.new([4,4])
-new_board = Board.new
-new_board.mark_board(new_knight)
-new_board.advance_round
-
-
-
-# def board_of_forking_paths(board)
-#   next_rounds_board = Board.new
-#   board.grid.each do |row|
-#     row.each do |square|
-#       unless square.nil?
-#         square.each do |a_knight|
-#           a_knight.possible_moves.each do |coords|
-#             branching_knight = Knight.new([coords[0], coords[1]])
-#             next_rounds_board.mark_board(branching_knight)
-#             branching_knight.path.update(a_knight.path.path)        
-#           end
-#         end
-#       end
+# class Path
+#   attr_accessor :path
+  
+#   def initialize(coords)
+#     @path = [coords[0],coords[1]]
+#   end
+    
+#   def update(piece)
+#     path_array = piece.path.path
+#     if path_array[1].kind_of?(Array)
+#       self.path = path_array << @path  
+#     else
+#       self.path = [[path_array], [@path] ] 
 #     end
 #   end
-#   return next_rounds_board
+  
+#   def to_s
+#     puts @path.inspect  
+#   end
+  
 # end
-
-# puts "ROUND 1"
-# board = board_of_forking_paths(board)
-# board.to_s
-
-# puts "ROUND 2"
-# board = board_of_forking_paths(board)
-# board.to_s
-
-
-
-
-
-
